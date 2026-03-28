@@ -2,15 +2,18 @@ import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Users, FileText, BarChart3,
-  Sprout, AlertCircle, Settings, ChevronRight
+  Sprout, AlertCircle, Settings, ChevronRight, Stethoscope, FlaskConical
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import AgriLogo from './AgriLogo'
 
 const NAV_ITEMS = {
   farmer: [
     { label: 'Apply for Scheme', icon: FileText, path: '/farmer', section: 'Portal' },
     { label: 'My Applications', icon: Users, path: '/farmer#status', section: 'Portal' },
     { label: 'Grievances', icon: AlertCircle, path: '/farmer#grievance', section: 'Portal' },
+    { label: 'AI Crop Doctor', icon: Stethoscope, path: '/crop-doctor', section: 'Smart Tools' },
+    { label: 'Soil Health Advisor', icon: FlaskConical, path: '/soil-advisor', section: 'Smart Tools' },
   ],
   officer: [
     { label: 'Applications', icon: FileText, path: '/officer', section: 'Management' },
@@ -50,12 +53,8 @@ export default function Sidebar({ open, onClose }) {
       />
       <aside className={`sidebar ${open ? 'open' : ''}`}>
         {/* Logo */}
-        <div className="sidebar-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div className="sidebar-logo-icon">🌾</div>
-          <div>
-            <div className="sidebar-logo-text">AgriSmart</div>
-            <div className="sidebar-logo-sub">Admin Portal</div>
-          </div>
+        <div className="sidebar-logo" style={{ padding: '24px 20px' }}>
+          <AgriLogo size="sm" light={true} onClick={() => navigate('/')} />
         </div>
 
         {/* Navigation */}

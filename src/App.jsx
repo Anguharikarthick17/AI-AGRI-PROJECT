@@ -13,6 +13,8 @@ import ApplyScheme from './pages/ApplyScheme'
 import Subsidies from './pages/Subsidies'
 import Insurance from './pages/Insurance'
 import Grievance from './pages/Grievance'
+import CropDoctor from './pages/CropDoctor'
+import SoilAdvisor from './pages/SoilAdvisor'
 import LanguageSelector from './components/LanguageSelector'
 import LiveTime from './components/LiveTime'
 
@@ -75,6 +77,8 @@ export default function App() {
         <Route path="/subsidies" element={<Subsidies />} />
         <Route path="/insurance" element={<Insurance />} />
         <Route path="/grievance" element={<Grievance />} />
+        <Route path="/crop-doctor" element={<AppLayout><CropDoctor /></AppLayout>} />
+        <Route path="/soil-advisor" element={<AppLayout><SoilAdvisor /></AppLayout>} />
 
         {/* Farmer Portal */}
         <Route path="/farmer" element={

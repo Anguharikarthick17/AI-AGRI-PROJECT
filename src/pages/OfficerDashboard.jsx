@@ -3,7 +3,22 @@ import { supabase } from '../lib/supabaseClient'
 import { exportToCSV } from '../lib/aiHelpers'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
-import { Search, Download, RefreshCw, CheckCircle, XCircle, Shield, AlertTriangle, Users } from 'lucide-react'
+import { Search, Download, RefreshCw, CheckCircle, XCircle, Shield, AlertTriangle, Users, MapPin, Play, X } from 'lucide-react'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+
+// Fix for Leaflet marker icons
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+})
+L.Marker.prototype.options.icon = DefaultIcon
 
 const DEMO_DATA = [
   { id: '1', name: 'Rajesh Kumar', aadhaar: '123456789012', scheme_type: 'PM-KISAN', status: 'Pending', ai_flag: 'Valid', risk_score: 12, crop_type: 'Wheat', created_at: new Date(Date.now() - 86400000).toISOString() },
@@ -35,6 +50,7 @@ export default function OfficerDashboard() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [selectedApp, setSelectedApp] = useState(null)
 
   const fetchApps = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
@@ -84,7 +100,15 @@ export default function OfficerDashboard() {
       localStorage.setItem('mock_applications', JSON.stringify(updatedApps))
     }
     addNotification(`Application ${newStatus.toLowerCase()} successfully`, newStatus === 'Approved' ? 'success' : 'error')
-    toast.success(`Application ${newStatus}`)
+    toast.success(`Application ${newStatus}`, { id: 'status-update' })
+    
+    // Simulate SMS notification
+    setTimeout(() => {
+      toast.success('SMS Notification sent to farmer!', {
+        icon: '📱',
+        style: { background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }
+      });
+    }, 1500);
   }
 
   // Filter
@@ -227,18 +251,21 @@ export default function OfficerDashboard() {
                       {new Date(app.created_at).toLocaleDateString('en-IN')}
                     </td>
                     <td>
-                      {app.status === 'Pending' || app.status === 'Verified' ? (
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-primary btn-sm" onClick={() => updateStatus(app.id, 'Approved')} style={{ gap: 4, padding: '6px 12px' }}>
-                            <CheckCircle size={13} /> Approve
-                          </button>
-                          <button className="btn btn-danger btn-sm" onClick={() => updateStatus(app.id, 'Rejected')} style={{ gap: 4, padding: '6px 12px' }}>
-                            <XCircle size={13} /> Reject
-                          </button>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: '0.8rem', color: 'var(--slate-400)', fontStyle: 'italic' }}>No action</span>
-                      )}
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button className="btn btn-outline btn-sm" onClick={() => setSelectedApp(app)} style={{ padding: '6px 12px' }}>
+                          View
+                        </button>
+                        {app.status === 'Pending' || app.status === 'Verified' ? (
+                          <>
+                            <button className="btn btn-primary btn-sm" onClick={() => updateStatus(app.id, 'Approved')} style={{ gap: 4, padding: '6px 12px' }}>
+                              <CheckCircle size={13} /> Approve
+                            </button>
+                            <button className="btn btn-danger btn-sm" onClick={() => updateStatus(app.id, 'Rejected')} style={{ gap: 4, padding: '6px 12px' }}>
+                              <XCircle size={13} /> Reject
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -251,6 +278,136 @@ export default function OfficerDashboard() {
           Showing {filtered.length} of {apps.length} applications • Auto-refreshes every 30s
         </div>
       </div>
+
+      {/* Modal Overlay */}
+      {selectedApp && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+          padding: '20px'
+        }} onClick={() => setSelectedApp(null)}>
+          <div style={{
+            background: 'white', borderRadius: 24, maxWidth: 800, width: '100%',
+            maxHeight: '90vh', overflowY: 'auto', position: 'relative',
+            color: 'var(--slate-900)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+          }} onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div style={{ borderBottom: '1px solid var(--slate-100)', padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'white', zIndex: 10 }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>Application Details</h2>
+                <div style={{ fontSize: '0.85rem', color: 'var(--slate-400)', marginTop: 4 }}>ID: {selectedApp.id}</div>
+              </div>
+              <button 
+                onClick={() => setSelectedApp(null)}
+                style={{ background: 'var(--slate-100)', border: 'none', padding: 8, borderRadius: '50%', cursor: 'pointer', color: 'var(--slate-600)' }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div style={{ padding: '32px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 32 }}>
+                <div>
+                  <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--slate-400)', letterSpacing: '1px', textTransform: 'uppercase' }}>Farmer Information</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>Full Name</div>
+                      <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{selectedApp.name}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>Aadhaar Number</div>
+                      <div style={{ fontWeight: 600 }}>{selectedApp.aadhaar}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>Application Type</div>
+                      <div style={{ fontWeight: 600 }}>{selectedApp.scheme_type}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--slate-400)', letterSpacing: '1px', textTransform: 'uppercase' }}>AI Verification</h4>
+                  <div style={{ background: selectedApp.ai_flag === 'Valid' ? 'var(--green-50)' : 'var(--red-50)', padding: 16, borderRadius: 16, border: `1px solid ${selectedApp.ai_flag === 'Valid' ? 'var(--green-200)' : 'var(--red-200)'}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      {selectedApp.ai_flag === 'Valid' ? <CheckCircle size={18} color="var(--green-600)" /> : <AlertTriangle size={18} color="#ef4444" />}
+                      <span style={{ fontWeight: 700, color: selectedApp.ai_flag === 'Valid' ? 'var(--green-700)' : '#dc2626' }}>{selectedApp.ai_flag}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ flex: 1, height: 8, background: 'rgba(0,0,0,0.1)', borderRadius: 4 }}>
+                        <div style={{ height: '100%', width: `${selectedApp.risk_score}%`, background: selectedApp.risk_score < 30 ? 'var(--green-500)' : '#ef4444', borderRadius: 4 }} />
+                      </div>
+                      <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{selectedApp.risk_score}% Risk</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Map */}
+              <div style={{ marginBottom: 32 }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--slate-400)', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <MapPin size={16} /> Location Information
+                </h4>
+                {selectedApp.latitude && selectedApp.longitude ? (
+                  <div style={{ height: 300, borderRadius: 16, overflow: 'hidden', border: '1px solid var(--slate-100)' }}>
+                    <MapContainer center={[selectedApp.latitude, selectedApp.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <Marker position={[selectedApp.latitude, selectedApp.longitude]} />
+                    </MapContainer>
+                  </div>
+                ) : (
+                  <div style={{ padding: '40px', background: 'var(--slate-50)', borderRadius: 16, textAlign: 'center', color: 'var(--slate-400)', fontSize: '0.9rem' }}>
+                    No location coordinate sharing enabled for this application.
+                  </div>
+                )}
+              </div>
+
+              {/* Voice Note */}
+              <div style={{ marginBottom: 32 }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--slate-400)', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Play size={16} /> Farmer Voice Note
+                </h4>
+                {selectedApp.voice_note_url ? (
+                  <div style={{ background: 'var(--slate-900)', padding: 16, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <audio src={selectedApp.voice_note_url} controls style={{ flex: 1 }} />
+                  </div>
+                ) : (
+                  <div style={{ padding: '40px', background: 'var(--slate-50)', borderRadius: 16, textAlign: 'center', color: 'var(--slate-400)', fontSize: '0.9rem' }}>
+                    No voice note recorded.
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Actions */}
+              <div style={{ borderTop: '1px solid var(--slate-100)', paddingTop: 24, display: 'flex', justifyContent: 'flex-end', gap: 16 }}>
+                {selectedApp.status === 'Pending' || selectedApp.status === 'Verified' ? (
+                  <>
+                    <button 
+                      className="btn btn-danger" 
+                      onClick={() => { updateStatus(selectedApp.id, 'Rejected'); setSelectedApp(null); }}
+                      style={{ padding: '12px 24px' }}
+                    >
+                      <XCircle size={18} /> Reject Application
+                    </button>
+                    <button 
+                      className="btn btn-primary" 
+                      onClick={() => { updateStatus(selectedApp.id, 'Approved'); setSelectedApp(null); }}
+                      style={{ padding: '12px 24px' }}
+                    >
+                      <CheckCircle size={18} /> Approve Application
+                    </button>
+                  </>
+                ) : (
+                  <div style={{ color: 'var(--slate-400)', fontStyle: 'italic' }}>
+                    Application is already {selectedApp.status.toLowerCase()}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`.spin { animation: spin .8s linear infinite; }`}</style>
     </div>

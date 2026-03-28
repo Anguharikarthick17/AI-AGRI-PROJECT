@@ -5,7 +5,22 @@ import {
 } from 'chart.js'
 import { Bar, Pie, Line } from 'react-chartjs-2'
 import { supabase } from '../lib/supabaseClient'
-import { BarChart3, Users, CheckCircle, AlertCircle, AlertTriangle, TrendingUp, RefreshCw } from 'lucide-react'
+import { BarChart3, Users, CheckCircle, AlertCircle, AlertTriangle, TrendingUp, RefreshCw, MapPin, Play, Mic } from 'lucide-react'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+
+// Fix for Leaflet marker icons
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+})
+L.Marker.prototype.options.icon = DefaultIcon
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
@@ -66,8 +81,8 @@ export default function AdminAnalytics() {
     
     try {
       const [appsRes, grievRes] = await Promise.all([
-        supabase.from('applications').select('status, scheme_type, created_at').order('created_at', { ascending: false }),
-        supabase.from('grievances').select('category, priority, created_at').order('created_at', { ascending: false }),
+        supabase.from('applications').select('*').order('created_at', { ascending: false }),
+        supabase.from('grievances').select('*').order('created_at', { ascending: false }),
       ])
       if (!appsRes.error && appsRes.data) remoteApps = appsRes.data
       if (!grievRes.error && grievRes.data) remoteGriev = grievRes.data
@@ -267,29 +282,72 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
-      {/* Grievance breakdown */}
-      <div className="card">
-        <div className="chart-title" style={{ marginBottom: 20 }}>Grievance Summary</div>
-        {loading ? (
-          <div className="skeleton" style={{ height: 100 }} />
-        ) : grievances.length === 0 ? (
-          <div style={{ textAlign: 'center', color: 'var(--slate-400)', padding: '24px' }}>No grievances recorded</div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-            {['Subsidy', 'Insurance', 'Delay', 'Corruption', 'Technical', 'Other'].map(cat => {
-              const count = grievances.filter(g => g.category === cat).length
-              return count > 0 ? (
-                <div key={cat} style={{ background: 'var(--slate-50)', borderRadius: 12, padding: '16px', border: '1px solid var(--slate-200)' }}>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--slate-900)', fontFamily: 'Outfit, sans-serif' }}>{count}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--slate-600)', fontWeight: 600 }}>{cat}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--slate-400)', marginTop: 4 }}>
-                    {grievances.filter(g => g.category === cat && g.priority === 'High').length} high priority
-                  </div>
-                </div>
-              ) : null
-            })}
+      {/* Applicant Distribution Map */}
+      <div className="card" style={{ marginBottom: 24, padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '24px 24px 0' }}>
+          <div className="chart-title" style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <MapPin size={20} color="var(--green-600)" /> Geographical Distribution
           </div>
-        )}
+          <p style={{ fontSize: '0.85rem', color: 'var(--slate-500)', marginBottom: 20 }}>Live view of application locations across the region</p>
+        </div>
+        <div style={{ height: 400, width: '100%', position: 'relative' }}>
+          {!loading && (
+            <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 1 }}>
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              {apps.filter(a => a.latitude && a.longitude).map((app, i) => (
+                <Marker key={i} position={[app.latitude, app.longitude]}>
+                  {/* Popup can be added here if needed */}
+                </Marker>
+              ))}
+            </MapContainer>
+          )}
+        </div>
+      </div>
+
+      {/* Voice Notes Feed */}
+      <div className="grid-2">
+        <div className="card">
+          <div className="chart-title" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Mic size={20} color="#8b5cf6" /> Recent Farmer Voice Notes
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 400, overflowY: 'auto', paddingRight: 8 }}>
+            {apps.filter(a => a.voice_note_url).length === 0 ? (
+              <div style={{ textAlign: 'center', color: 'var(--slate-400)', padding: '40px' }}>No voice notes recorded yet</div>
+            ) : (
+              apps.filter(a => a.voice_note_url).slice(0, 10).map((app, i) => (
+                <div key={i} style={{ background: 'var(--slate-50)', border: '1px solid var(--slate-100)', borderRadius: 12, padding: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{app.name}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>{new Date(app.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--slate-500)', marginBottom: 8 }}>{app.scheme_type}</div>
+                  <audio src={app.voice_note_url} controls style={{ width: '100%', height: 32 }} />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="chart-title" style={{ marginBottom: 20 }}>Grievance Summary</div>
+          {loading ? (
+            <div className="skeleton" style={{ height: 100 }} />
+          ) : grievances.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--slate-400)', padding: '24px' }}>No grievances recorded</div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {['Subsidy', 'Insurance', 'Delay', 'Corruption', 'Technical', 'Other'].map(cat => {
+                const count = grievances.filter(g => g.category === cat).length
+                return count > 0 ? (
+                  <div key={cat} style={{ background: 'white', borderRadius: 12, padding: '12px', border: '1px solid var(--slate-100)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--slate-900)' }}>{count}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--slate-600)', fontWeight: 600 }}>{cat}</div>
+                  </div>
+                ) : null
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       <style>{`.spin { animation: spin .8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); }}`}</style>

@@ -3,7 +3,10 @@ import { supabase } from '../lib/supabaseClient'
 import { classifyGrievance } from '../lib/aiHelpers'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
-import { Upload, CheckCircle, XCircle, Clock, AlertTriangle, Send, FileText, Leaf, Folder, ShieldAlert, Circle, Check } from 'lucide-react'
+import { Upload, CheckCircle, XCircle, Clock, AlertTriangle, Send, FileText, Leaf, Folder, ShieldAlert, Circle, Check, TrendingUp, CloudRain, Stethoscope, FlaskConical } from 'lucide-react'
+import MarketTracker from '../components/MarketTracker'
+import WeatherWidget from '../components/WeatherWidget'
+import { useNavigate } from 'react-router-dom'
 
 // Removed SCHEMES and CROPS constants
 const STATUS_STEPS = [
@@ -27,6 +30,7 @@ function RiskBadge({ score }) {
 }
 
 export default function FarmerPortal() {
+  const navigate = useNavigate()
   const { user, addNotification } = useAuth()
   const [applications, setApplications] = useState([])
   const [grievanceText, setGrievanceText] = useState('')
@@ -108,6 +112,53 @@ export default function FarmerPortal() {
           <div>
             <h1 className="page-title">Farmer Portal</h1>
             <p className="page-subtitle">Apply for government schemes and track your applications</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Advanced Tools Quick Access */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 32 }}>
+        <WeatherWidget />
+        <MarketTracker />
+      </div>
+
+      {/* Smart Analysis Tools */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
+        <div 
+          className="card" 
+          onClick={() => navigate('/crop-doctor')}
+          style={{ 
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16, padding: '20px',
+            border: '1px solid var(--green-100)', background: 'white'
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--green-400)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--green-100)'}
+        >
+          <div style={{ padding: 12, background: 'var(--green-50)', borderRadius: 12, color: 'var(--green-600)' }}>
+            <Stethoscope size={24} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, color: 'var(--slate-900)' }}>AI Crop Doctor</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Diagnose crop diseases instantly</div>
+          </div>
+        </div>
+        
+        <div 
+          className="card" 
+          onClick={() => navigate('/soil-advisor')}
+          style={{ 
+            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16, padding: '20px',
+            border: '1px solid var(--blue-100)', background: 'white'
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--blue-400)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--blue-100)'}
+        >
+          <div style={{ padding: 12, background: 'var(--blue-50)', borderRadius: 12, color: 'var(--blue-600)' }}>
+            <FlaskConical size={24} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, color: 'var(--slate-900)' }}>Soil Health Advisor</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Get smart NPK fertilizer advice</div>
           </div>
         </div>
       </div>

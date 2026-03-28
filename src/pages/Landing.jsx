@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sprout, ShieldCheck, Shield, Zap, BarChart3, AlertTriangle, ChevronRight, ArrowRight, PlayCircle, Coins, MessageSquareWarning, FileText, Bot, UserCheck, CheckCircle2 } from 'lucide-react'
+import MarketTracker from '../components/MarketTracker'
+import WeatherWidget from '../components/WeatherWidget'
+import AgriLogo from '../components/AgriLogo'
 
 const FEATURES = [
   { icon: ShieldCheck, title: 'AI Document Verification', desc: 'OCR-powered instant verification of farmer documents with mismatch detection and risk scoring.', color: 'var(--green-600)' },
@@ -41,9 +44,8 @@ export default function Landing() {
         borderBottom: '1px solid rgba(255,255,255,.08)',
         padding: '0 40px', height: 70, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--green-400), var(--green-700))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🌾</div>
-          <span style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem', fontFamily: 'Outfit, sans-serif' }}>AgriSmart</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <AgriLogo size="md" light={true} onClick={() => navigate('/')} />
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
@@ -205,6 +207,44 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── Live Insights Section ── */}
+      <section style={{ padding: '80px 40px', background: '#0a0a0a' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 40, alignItems: 'center' }}>
+            <div ref={el => addRef(el, 12)} className="reveal">
+              <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'white', fontFamily: 'Outfit, sans-serif', marginBottom: 20 }}>
+                Real-Time <span style={{ color: 'var(--green-400)' }}>Field Intelligence</span>
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: 32 }}>
+                AgriSmart provides farmers and officers with instant access to market trends and weather advisories, 
+                enabling data-driven decisions that save costs and improve yields.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 16 }}>
+                {[
+                  'Live Mandi price updates',
+                  'Hyper-local weather alerts',
+                  'AI-powered crop health monitoring',
+                ].map((text, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'rgba(255,255,255,.7)', fontSize: '0.85rem', background: 'rgba(255,255,255,0.05)', padding: '8px 16px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green-500)' }} />
+                    {text}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div ref={el => addRef(el, 13)} className="reveal" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ transform: 'scale(1)', transformOrigin: 'top right' }}>
+                <WeatherWidget />
+              </div>
+              <div style={{ transform: 'scale(1)', transformOrigin: 'top right' }}>
+                <MarketTracker />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── How it Works ── */}
       <section style={{ padding: '100px 40px', background: '#0a0a0a' }}>
         <div className="container">
@@ -254,11 +294,11 @@ export default function Landing() {
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ background: '#050505', padding: '28px 40px', borderTop: '1px solid rgba(255,255,255,.06)' }}>
+      <footer style={{ background: '#050505', padding: '28px 40px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ color: 'white' }}><Sprout size={20} /></div>
-            <span style={{ color: 'rgba(255,255,255,.4)', fontSize: '0.85rem' }}>AgriSmart Admin © 2026 | Government of India</span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <AgriLogo size="sm" light={true} />
+            <span style={{ color: 'rgba(255,255,255,.3)', fontSize: '0.8rem', marginLeft: 16 }}>© 2026 | Government of India</span>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,.2)' }}>AI-Powered Digital Agriculture Mission</span>
         </div>

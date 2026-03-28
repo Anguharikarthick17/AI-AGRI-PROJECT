@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { CheckCircle, ArrowLeft, Send, IndianRupee, Leaf, Tractor, Droplets, Shield, Sprout, Coins } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
 import toast from 'react-hot-toast'
+import AgriLogo from '../components/AgriLogo'
+import LocationPicker from '../components/LocationPicker'
+import VoiceRecorder from '../components/VoiceRecorder'
 
 const SUBSIDIES = [
   { id: '1', title: 'PM-KISAN Scheme', desc: 'Provides ₹6000 per year to farmers in 3 installments.', icon: <IndianRupee size={32} color="#3b82f6" /> },
@@ -23,11 +26,34 @@ export default function Subsidies() {
     name: '', phone: '', aadhaar: '', state: '', district: '', farmerType: '', landArea: '',
   })
   
+  const [location, setLocation] = useState(null)
+  const [voiceBlob, setVoiceBlob] = useState(null)
   const [file, setFile] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
+
+    let voiceNoteUrl = null
+    if (voiceBlob) {
+      try {
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.wav`
+        const { data, error: uploadError } = await supabase.storage
+          .from('voice-notes')
+          .upload(fileName, voiceBlob)
+        
+        if (uploadError) throw uploadError
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('voice-notes')
+          .getPublicUrl(fileName)
+        
+        voiceNoteUrl = publicUrl
+      } catch (err) {
+        console.warn('Voice upload failed, proceeding without it or using local blob')
+        voiceNoteUrl = URL.createObjectURL(voiceBlob)
+      }
+    }
 
     const newApp = {
       id: 'APP-' + Math.floor(100000 + Math.random() * 900000),
@@ -37,6 +63,9 @@ export default function Subsidies() {
       scheme_type: selectedScheme.title,
       crop_type: 'Subsidy Scheme',
       land_details: form.landArea || 'Not Specified',
+      latitude: location?.lat || null,
+      longitude: location?.lng || null,
+      voice_note_url: voiceNoteUrl,
       status: 'Pending',
       ai_flag: 'Valid',
       risk_score: Math.floor(Math.random() * 20),
@@ -65,6 +94,8 @@ export default function Subsidies() {
     setSelectedScheme(null)
     setSubmitted(false)
     setForm({ name: '', phone: '', aadhaar: '', state: '', district: '', farmerType: '', landArea: '' })
+    setLocation(null)
+    setVoiceBlob(null)
     setFile(null)
   }
 
@@ -78,9 +109,8 @@ export default function Subsidies() {
         borderBottom: '1px solid rgba(255,255,255,.08)',
         padding: '0 40px', height: 70, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--green-400), var(--green-700))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><Sprout size={20} /></div>
-          <span style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem', fontFamily: 'Outfit, sans-serif' }}>AgriSmart</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <AgriLogo size="sm" light={true} onClick={() => navigate('/')} />
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
@@ -267,6 +297,16 @@ export default function Subsidies() {
                         <option value={selectedScheme.title} style={{ color: 'black' }}>{selectedScheme.title}</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div style={{ marginBottom: 32 }}>
+                    <label style={{ display: 'block', marginBottom: 12, fontSize: '0.85rem', color: 'rgba(255,255,255,.7)' }}>Your Location *</label>
+                    <LocationPicker onLocationSelect={setLocation} />
+                    <small style={{ color: 'rgba(255,255,255,.5)', display: 'block', marginTop: 6 }}>Pin your farm location on the map for faster verification.</small>
+                  </div>
+
+                  <div style={{ marginBottom: 32 }}>
+                    <VoiceRecorder onRecordingComplete={setVoiceBlob} />
                   </div>
 
                   {/* File Upload (Optional) */}

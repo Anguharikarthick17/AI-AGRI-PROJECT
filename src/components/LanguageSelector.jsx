@@ -6,7 +6,8 @@ const LANGUAGES = [
   { code: 'hi', label: 'हिंदी (Hindi)' },
   { code: 'ta', label: 'தமிழ் (Tamil)' },
   { code: 'te', label: 'తెలుగు (Telugu)' },
-  { code: 'ml', label: 'മലയാളം (Malayalam)' }
+  { code: 'ml', label: 'മലയാളം (Malayalam)' },
+  { code: 'mr', label: 'मराठी (Marathi)' }
 ];
 
 export default function LanguageSelector() {

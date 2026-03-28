@@ -145,3 +145,62 @@ export function exportToCSV(data, filename = 'applications.csv') {
   a.click()
   URL.revokeObjectURL(url)
 }
+
+// ─── AI CROP DOCTOR ─────────────────────────────────────────────────────────
+export async function diagnoseCrop(description) {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+  if (apiKey && apiKey !== 'your-openai-api-key-here') {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert Agricultural Pathologist and Crop Doctor. 
+              The farmer will describe a plant health problem. You must:
+              1. Identify the likely disease/pest.
+              2. Suggest 2-3 specific organic or chemical remedies.
+              3. Provide a 'Confidence' score (0-100%).
+              Respond ONLY with valid JSON: {"diagnosis": "...", "remedies": ["...", "..."], "confidence": 85}`,
+            },
+            { role: 'user', content: description },
+          ],
+          temperature: 0.3,
+        }),
+      })
+      const data = await res.json()
+      const content = data.choices?.[0]?.message?.content || '{}'
+      return JSON.parse(content)
+    } catch (e) {
+      console.warn('OpenAI API failed, using simulation', e)
+    }
+  }
+
+  // Simulate Crop Diagnosis
+  const lower = description.toLowerCase()
+  let diagnosis = 'Nutritional Deficiency'
+  let remedies = ['Apply micronutrient spray', 'Improve irrigation frequency', 'Check soil pH levels']
+  let confidence = 45
+
+  if (lower.includes('yellow') && lower.includes('leaf')) {
+    diagnosis = 'Nitrogen Deficiency / Leaf Rust'
+    remedies = ['Apply Urea or Neem Cake', 'Use Azotobacter bio-fertilizer', 'Spray Copper Oxychloride if spots are present']
+    confidence = 82
+  } else if (lower.includes('hole') || lower.includes('eaten')) {
+    diagnosis = 'Fall Armyworm / Pest Attack'
+    remedies = ['Spray Neem Oil (1500ppm)', 'Use pheromone traps', 'Apply Bacillus thuringiensis (Bt) if severe']
+    confidence = 90
+  } else if (lower.includes('spot') || lower.includes('brown')) {
+    diagnosis = 'Early Blight / Fungal Spot'
+    remedies = ['Remove infected leaves', 'Maintain proper spacing for aeration', 'Apply Trichoderma Viride bio-fungicide']
+    confidence = 75
+  }
+
+  return { diagnosis, remedies, confidence }
+}

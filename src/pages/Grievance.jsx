@@ -4,6 +4,9 @@ import { CheckCircle, ArrowLeft, Send, Search, AlertCircle, FileText, Clock, Spr
 import { supabase } from '../lib/supabaseClient'
 import { classifyGrievance } from '../lib/aiHelpers'
 import toast from 'react-hot-toast'
+import AgriLogo from '../components/AgriLogo'
+import LocationPicker from '../components/LocationPicker'
+import VoiceRecorder from '../components/VoiceRecorder'
 
 export default function Grievance() {
   const navigate = useNavigate()
@@ -15,6 +18,8 @@ export default function Grievance() {
   const [form, setForm] = useState({
     name: '', phone: '', aadhaar: '', state: '', district: '', issueType: '', description: ''
   })
+  const [location, setLocation] = useState(null)
+  const [voiceBlob, setVoiceBlob] = useState(null)
   const [file, setFile] = useState(null)
 
   // Track State
@@ -33,11 +38,29 @@ export default function Grievance() {
       result = await classifyGrievance(form.description)
       toast.dismiss('griev')
 
+      let voiceNoteUrl = null
+      if (voiceBlob) {
+        const fileName = `grievance-${Date.now()}-${Math.random().toString(36).substring(7)}.wav`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('voice-notes')
+          .upload(fileName, voiceBlob)
+        
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('voice-notes')
+            .getPublicUrl(fileName)
+          voiceNoteUrl = publicUrl
+        }
+      }
+
       const { data, error } = await supabase.from('grievances').insert([{
         user_id: 'anon',
         complaint_text: form.description,
         category: result.category,
-        priority: result.priority
+        priority: result.priority,
+        latitude: location?.lat || null,
+        longitude: location?.lng || null,
+        voice_note_url: voiceNoteUrl
       }]).select()
 
       if (error) throw error
@@ -56,6 +79,9 @@ export default function Grievance() {
         complaint_text: form.description,
         category: result.category || 'Other',
         priority: result.priority || 'Low',
+        latitude: location?.lat || null,
+        longitude: location?.lng || null,
+        voice_note_url: voiceBlob ? URL.createObjectURL(voiceBlob) : null,
         created_at: new Date().toISOString()
       }
       localStorage.setItem('mock_grievances', JSON.stringify([newGriev, ...(existing || [])]))
@@ -100,6 +126,8 @@ export default function Grievance() {
   const resetForm = () => {
     setSubmittedId(null)
     setForm({ name: '', phone: '', aadhaar: '', state: '', district: '', issueType: '', description: '' })
+    setLocation(null)
+    setVoiceBlob(null)
     setFile(null)
   }
 
@@ -113,9 +141,8 @@ export default function Grievance() {
         borderBottom: '1px solid rgba(255,255,255,.08)',
         padding: '0 40px', height: 70, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, var(--green-400), var(--green-700))', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><Sprout size={20} /></div>
-          <span style={{ color: 'white', fontWeight: 800, fontSize: '1.2rem', fontFamily: 'Outfit, sans-serif' }}>AgriSmart</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <AgriLogo size="sm" light={true} onClick={() => navigate('/')} />
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
@@ -263,6 +290,15 @@ export default function Grievance() {
                     onChange={e => setFile(e.target.files[0])}
                   />
                   <small style={{ color: 'rgba(255,255,255,.5)', display: 'block', marginTop: 6 }}>Upload images or PDFs of related documents up to 5MB.</small>
+                </div>
+
+                <div style={{ marginBottom: 32 }}>
+                  <label style={{ display: 'block', marginBottom: 12, fontSize: '0.85rem', color: 'rgba(255,255,255,.7)' }}>Your Location (Optional)</label>
+                  <LocationPicker onLocationSelect={setLocation} />
+                </div>
+
+                <div style={{ marginBottom: 32 }}>
+                  <VoiceRecorder onRecordingComplete={setVoiceBlob} />
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16 }}>
