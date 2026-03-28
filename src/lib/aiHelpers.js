@@ -204,3 +204,81 @@ export async function diagnoseCrop(description) {
 
   return { diagnosis, remedies, confidence }
 }
+// ─── WEB ASSISTANT AI ──────────────────────────────────────────────────────
+export async function getWebAssistantResponse(message, currentPath) {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+  const pathInfo = getPathContext(currentPath)
+
+  if (apiKey && apiKey !== 'your-openai-api-key-here') {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: `You are "AgriSmart AI," a helpful assistant for the AgriSmart platform.
+              The user is currently on the page: ${pathInfo.name}.
+              Page Description: ${pathInfo.description}.
+              Platform Context: AgriSmart is a Digital Agriculture Mission portal for farmers, officers, and admins.
+              Your job is to:
+              1. Help the user understand what they can do on THIS specific page.
+              2. Answer questions about government schemes, subsidies, and insurance.
+              3. Provide general agricultural advice (weather, crops, soil).
+              Keep answers concise and professional. Use markdown for lists.`,
+            },
+            { role: 'user', content: message },
+          ],
+          temperature: 0.7,
+        }),
+      })
+      const data = await res.json()
+      return data.choices?.[0]?.message?.content || "I'm sorry, I couldn't process that right now."
+    } catch (e) {
+      console.warn('OpenAI Assistant failed, using simulation', e)
+    }
+  }
+
+  // Simulation Fallback
+  return simulateAssistantResponse(message, pathInfo)
+}
+
+function getPathContext(path) {
+  const contexts = {
+    '/': { name: 'Landing Page', description: 'Overview of AgriSmart missions, stats, and weather updates.' },
+    '/login': { name: 'Login Page', description: 'Login for Farmers, Officers, and Admins.' },
+    '/schemes': { name: 'Schemes Portal', description: 'Apply for various government agricultural schemes.' },
+    '/subsidies': { name: 'Subsidies', description: 'Request financial aid for seeds, machinery, and irrigation.' },
+    '/insurance': { name: 'Insurance', description: 'Apply for crop insurance against natural disasters.' },
+    '/grievance': { name: 'Grievance Redressal', description: 'Submit complaints or report corruption directly to the mission.' },
+    '/crop-doctor': { name: 'Crop Doctor', description: 'AI-powered diagnosis of plant diseases and pest attacks.' },
+    '/soil-advisor': { name: 'Soil Advisor', description: 'Expert guidance on soil health and fertilizer recommendations.' },
+    '/farmer': { name: 'Farmer Dashboard', description: 'View application status, weather alerts, and personalized advice.' },
+    '/officer': { name: 'Officer Dashboard', description: 'Verify farmer applications and manage workflow approvals.' },
+    '/admin': { name: 'Admin Analytics', description: 'High-level mission oversight, fraud detection, and performance metrics.' },
+  }
+  return contexts[path] || { name: 'AgriSmart Portal', description: 'The overall portal for the Digital Agriculture Mission.' }
+}
+
+function simulateAssistantResponse(message, pathInfo) {
+  const lower = message.toLowerCase()
+  
+  if (lower.includes('what') && (lower.includes('do') || lower.includes('can'))) {
+    return `On the **${pathInfo.name}**, you can: \n\n ${pathInfo.description} \n\n Would you like me to guide you through any of these features?`
+  }
+
+  if (lower.includes('hello') || lower.includes('hi')) {
+    return `Hello! I am AgriSmart AI. You are currently on the **${pathInfo.name}**. How can I assist you today?`
+  }
+
+  if (lower.includes('subsidy') || lower.includes('money')) {
+    return `AgriSmart provides various subsidies including: \n- Seed & Fertilizer Subsidies \n- Irrigation Equipment \n- Farm Mechanization \n\nYou can apply for these in the **Subsidies** section.`
+  }
+
+  return `I understand you're asking about "${message}". As an AgriSmart Assistant, I'm here to help you navigate the **${pathInfo.name}**. \n\nFeel free to ask about schemes, subsidies, or how to use specific tools like the Crop Doctor!`
+}

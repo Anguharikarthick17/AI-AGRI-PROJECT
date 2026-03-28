@@ -17,6 +17,7 @@ import CropDoctor from './pages/CropDoctor'
 import SoilAdvisor from './pages/SoilAdvisor'
 import LanguageSelector from './components/LanguageSelector'
 import LiveTime from './components/LiveTime'
+import WebAssistant from './components/WebAssistant'
 
 // Role-based route guard
 function ProtectedRoute({ children, roles }) {
@@ -53,6 +54,7 @@ export default function App() {
     <>
       <LanguageSelector />
       <LiveTime />
+      <WebAssistant />
       <Toaster
         position="top-right"
         toastOptions={{
