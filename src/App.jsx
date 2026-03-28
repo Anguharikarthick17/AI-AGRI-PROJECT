@@ -9,6 +9,12 @@ import Login from './pages/Login'
 import FarmerPortal from './pages/FarmerPortal'
 import OfficerDashboard from './pages/OfficerDashboard'
 import AdminAnalytics from './pages/AdminAnalytics'
+import ApplyScheme from './pages/ApplyScheme'
+import Subsidies from './pages/Subsidies'
+import Insurance from './pages/Insurance'
+import Grievance from './pages/Grievance'
+import LanguageSelector from './components/LanguageSelector'
+import LiveTime from './components/LiveTime'
 
 // Role-based route guard
 function ProtectedRoute({ children, roles }) {
@@ -43,6 +49,8 @@ function RootRedirect() {
 export default function App() {
   return (
     <>
+      <LanguageSelector />
+      <LiveTime />
       <Toaster
         position="top-right"
         toastOptions={{
@@ -63,6 +71,10 @@ export default function App() {
         {/* Public */}
         <Route path="/" element={<RootRedirect />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/schemes" element={<ApplyScheme />} />
+        <Route path="/subsidies" element={<Subsidies />} />
+        <Route path="/insurance" element={<Insurance />} />
+        <Route path="/grievance" element={<Grievance />} />
 
         {/* Farmer Portal */}
         <Route path="/farmer" element={

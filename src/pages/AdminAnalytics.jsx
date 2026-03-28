@@ -67,8 +67,17 @@ export default function AdminAnalytics() {
       setApps(appsRes.data || [])
       setGrievances(grievRes.data || [])
     } catch {
-      setApps(DEMO_APPS)
-      setGrievances(DEMO_GRIEVANCES)
+      const appsLocal = localStorage.getItem('mock_applications')
+      const grievLocal = localStorage.getItem('mock_grievances')
+      
+      const parsedApps = appsLocal ? JSON.parse(appsLocal) : DEMO_APPS
+      const parsedGriev = grievLocal ? JSON.parse(grievLocal) : DEMO_GRIEVANCES
+      
+      if (!appsLocal) localStorage.setItem('mock_applications', JSON.stringify(DEMO_APPS))
+      if (!grievLocal) localStorage.setItem('mock_grievances', JSON.stringify(DEMO_GRIEVANCES))
+      
+      setApps(parsedApps)
+      setGrievances(parsedGriev)
     }
     setLoading(false)
     setRefreshing(false)
@@ -149,7 +158,7 @@ export default function AdminAnalytics() {
 
   const STATS = [
     { label: 'Total Applications', value: total, icon: Users, color: 'green', sub: `+${Math.floor(total * 0.12)} this week` },
-    { label: 'Pending Review', value: pending, icon: AlertCircle, color: 'orange', sub: pending > 10 ? '⚠ High workload' : 'Normal load' },
+    { label: 'Pending Review', value: pending, icon: AlertCircle, color: 'orange', sub: pending > 10 ? 'High workload' : 'Normal load' },
     { label: 'Approved', value: approved, icon: CheckCircle, color: 'blue', sub: `${total > 0 ? Math.round(approved / total * 100) : 0}% approval rate` },
     { label: 'Total Grievances', value: totalGrievances, icon: AlertTriangle, color: 'purple', sub: `${highPriority} high priority` },
   ]

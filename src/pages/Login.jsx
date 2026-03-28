@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Sprout, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, Sprout, ArrowRight, ArrowLeft, Briefcase, Settings } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 
 const DEMO_CREDS = [
-  { role: 'Farmer', email: 'farmer@agri.gov.in', password: 'farmer123', color: 'var(--green-600)', icon: '👨‍🌾', desc: 'Apply for schemes & check status' },
-  { role: 'Officer', email: 'officer@agri.gov.in', password: 'officer123', color: '#3b82f6', icon: '👨‍💼', desc: 'Review & approve applications' },
-  { role: 'Admin', email: 'admin@agri.gov.in', password: 'admin123', color: '#8b5cf6', icon: '⚙️', desc: 'Analytics & system management' },
+  { role: 'Officer', email: 'officer@agri.gov.in', password: 'officer123', color: '#3b82f6', icon: <Briefcase size={28} color="#3b82f6" />, desc: 'Review & approve applications' },
+  { role: 'Admin', email: 'admin@agri.gov.in', password: 'admin123', color: '#8b5cf6', icon: <Settings size={28} color="#8b5cf6" />, desc: 'Analytics & system management' },
 ]
 
 export default function Login() {
@@ -76,7 +75,7 @@ export default function Login() {
         padding: '60px', color: 'white'
       }} className="left-panel">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 48 }}>
-          <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg, var(--green-400), var(--green-600))', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🌾</div>
+          <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg, var(--green-400), var(--green-600))', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><Sprout size={28} /></div>
           <div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }}>AgriSmart</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--green-300)' }}>AI-Powered Agricultural Administration</div>
@@ -128,7 +127,7 @@ export default function Login() {
                     cursor: 'pointer', transition: 'all .2s', textAlign: 'center'
                   }}
                 >
-                  <div style={{ fontSize: '1.2rem' }}>{c.icon}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 }}>{c.icon}</div>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: c.color, marginTop: 2 }}>{c.role}</div>
                 </button>
               ))}

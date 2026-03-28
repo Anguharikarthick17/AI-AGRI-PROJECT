@@ -446,3 +446,23 @@ tbody tr.high-risk:hover { background: #fee2e2; }
   .sidebar-overlay.visible { display: block; }
   .topnav { padding: 0 16px; }
 }
+
+/* --- Google Translate UI Overrides --- */
+iframe.goog-te-banner-frame { 
+  display: none !important; 
+}
+body { 
+  top: 0px !important; 
+  position: relative !important; 
+}
+#goog-gt-tt { 
+  display: none !important; 
+  visibility: hidden !important; 
+}
+.goog-te-balloon-frame { 
+  display: none !important; 
+}
+font { 
+  background-color: transparent !important; 
+  box-shadow: none !important; 
+}

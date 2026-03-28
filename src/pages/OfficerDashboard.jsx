@@ -44,7 +44,13 @@ export default function OfficerDashboard() {
       if (error) throw error
       setApps(data || [])
     } catch {
-      setApps(DEMO_DATA)
+      const stored = localStorage.getItem('mock_applications')
+      if (stored) {
+        setApps(JSON.parse(stored))
+      } else {
+        localStorage.setItem('mock_applications', JSON.stringify(DEMO_DATA))
+        setApps(DEMO_DATA)
+      }
     }
     setLoading(false)
     setRefreshing(false)
@@ -58,14 +64,16 @@ export default function OfficerDashboard() {
 
   const updateStatus = async (id, newStatus) => {
     const prev = [...apps]
-    setApps(apps.map(a => a.id === id ? { ...a, status: newStatus } : a))
+    const updatedApps = apps.map(a => a.id === id ? { ...a, status: newStatus } : a)
+    setApps(updatedApps)
     try {
       const { error } = await supabase.from('applications').update({ status: newStatus }).eq('id', id)
       if (error) throw error
     } catch {
-      // demo mode - keep local update
+      // demo mode - update local storage
+      localStorage.setItem('mock_applications', JSON.stringify(updatedApps))
     }
-    addNotification(`Application ${newStatus === 'Approved' ? 'approved ✓' : 'rejected ✗'} successfully`, newStatus === 'Approved' ? 'success' : 'error')
+    addNotification(`Application ${newStatus.toLowerCase()} successfully`, newStatus === 'Approved' ? 'success' : 'error')
     toast.success(`Application ${newStatus}`)
   }
 

@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.webm
+*.webp
+.agents/
+.agent/
+_agents/
+_agent/
+brain/
+

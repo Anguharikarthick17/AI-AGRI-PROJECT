@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Bell, Menu, LogOut, X } from 'lucide-react'
+import { Bell, Menu, LogOut, X, Hand } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function Topnav({ onMenuToggle }) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sprout, ShieldCheck, Zap, BarChart3, AlertTriangle, ChevronRight, ArrowRight, PlayCircle } from 'lucide-react'
+import { Sprout, ShieldCheck, Shield, Zap, BarChart3, AlertTriangle, ChevronRight, ArrowRight, PlayCircle, Coins, MessageSquareWarning, FileText, Bot, UserCheck, CheckCircle2 } from 'lucide-react'
 
 const FEATURES = [
   { icon: ShieldCheck, title: 'AI Document Verification', desc: 'OCR-powered instant verification of farmer documents with mismatch detection and risk scoring.', color: 'var(--green-600)' },
@@ -47,7 +47,6 @@ export default function Landing() {
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
-          <button className="btn btn-primary btn-sm" onClick={() => navigate('/farmer')}>Apply for Scheme</button>
         </div>
       </nav>
 
@@ -114,13 +113,23 @@ export default function Landing() {
           </p>
 
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', animation: 'fadeInUp .8s ease', animationFillMode: 'both', animationDelay: '.3s' }}>
-            <button className="btn btn-primary btn-lg" onClick={() => navigate('/farmer')}>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/schemes')}>
               <Sprout size={20} /> Apply for Scheme
+            </button>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/subsidies')}>
+              <Coins size={20} /> Subsidies
+            </button>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/insurance')} style={{ background: '#3b82f6', borderColor: '#2563eb' }}>
+              <Shield size={20} /> Insurance
+            </button>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/grievance')} style={{ background: '#ef4444', borderColor: '#b91c1c' }}>
+              <MessageSquareWarning size={20} /> Grievance
             </button>
             <button className="btn btn-secondary btn-lg" onClick={() => navigate('/login')}>
               <PlayCircle size={20} /> Go to Dashboard
             </button>
           </div>
+
 
           {/* Floating badge */}
           <div style={{
@@ -206,14 +215,14 @@ export default function Landing() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
             {[
-              { step: '01', title: 'Submit Application', desc: 'Farmer fills the form and uploads documents online', emoji: '📝' },
-              { step: '02', title: 'AI Verification', desc: 'OCR extracts data and AI cross-checks for authenticity', emoji: '🤖' },
-              { step: '03', title: 'Officer Review', desc: 'Officer reviews AI-flagged cases and takes action', emoji: '👨‍💼' },
-              { step: '04', title: 'Approval & Disbursal', desc: 'Approved benefits directly credited to farmer account', emoji: '✅' },
+              { step: '01', title: 'Submit Application', desc: 'Farmer fills the form and uploads documents online', icon: <FileText size={32} color="var(--green-500)" /> },
+              { step: '02', title: 'AI Verification', desc: 'OCR extracts data and AI cross-checks for authenticity', icon: <Bot size={32} color="#3b82f6" /> },
+              { step: '03', title: 'Officer Review', desc: 'Officer reviews AI-flagged cases and takes action', icon: <UserCheck size={32} color="#f59e0b" /> },
+              { step: '04', title: 'Approval & Disbursal', desc: 'Approved benefits directly credited to farmer account', icon: <CheckCircle2 size={32} color="#10b981" /> },
             ].map((step, i) => (
               <div key={i} ref={el => addRef(el, 7 + i)} className="reveal" style={{ transitionDelay: `${i * 0.12}s`, textAlign: 'center', padding: '32px 20px' }}>
-                <div style={{ width: 70, height: 70, borderRadius: '50%', background: 'rgba(16,185,129,.08)', border: '2px solid rgba(16,185,129,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '2rem' }}>
-                  {step.emoji}
+                <div style={{ width: 70, height: 70, borderRadius: '50%', background: 'rgba(16,185,129,.08)', border: '2px solid rgba(16,185,129,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  {step.icon}
                 </div>
                 <div style={{ color: 'var(--green-500)', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: 8 }}>Step {step.step}</div>
                 <h3 style={{ color: 'white', fontSize: '1.05rem', fontWeight: 700, marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>{step.title}</h3>
@@ -234,7 +243,7 @@ export default function Landing() {
             Join thousands of farmers and officers already using AgriSmart for faster, transparent service delivery.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-primary btn-lg" onClick={() => navigate('/farmer')}>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('/schemes')}>
               <Sprout size={20} /> Start Your Application
             </button>
             <button className="btn btn-secondary btn-lg" onClick={() => navigate('/login')}>
@@ -248,7 +257,7 @@ export default function Landing() {
       <footer style={{ background: '#050505', padding: '28px 40px', borderTop: '1px solid rgba(255,255,255,.06)' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: '1.2rem' }}>🌾</span>
+            <div style={{ color: 'white' }}><Sprout size={20} /></div>
             <span style={{ color: 'rgba(255,255,255,.4)', fontSize: '0.85rem' }}>AgriSmart Admin © 2026 | Government of India</span>
           </div>
           <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,.2)' }}>AI-Powered Digital Agriculture Mission</span>
