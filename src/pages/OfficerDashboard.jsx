@@ -39,19 +39,29 @@ export default function OfficerDashboard() {
   const fetchApps = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
     else setRefreshing(true)
+    
+    let remoteApps = []
+    let localApps = JSON.parse(localStorage.getItem('mock_applications') || '[]')
+    
     try {
       const { data, error } = await supabase.from('applications').select('*').order('created_at', { ascending: false })
-      if (error) throw error
-      setApps(data || [])
-    } catch {
-      const stored = localStorage.getItem('mock_applications')
-      if (stored) {
-        setApps(JSON.parse(stored))
-      } else {
-        localStorage.setItem('mock_applications', JSON.stringify(DEMO_DATA))
-        setApps(DEMO_DATA)
-      }
+      if (!error && data) remoteApps = data
+    } catch (err) {
+      console.warn('Supabase fetch failed, relying on local storage only')
     }
+
+    // Merge both, keeping remote ones as priority for the same ID
+    const merged = [...remoteApps]
+    localApps.forEach(local => {
+      if (!merged.find(remote => remote.id === local.id)) {
+        merged.push(local)
+      }
+    })
+
+    // Sort by date
+    merged.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+    
+    setApps(merged.length > 0 ? merged : DEMO_DATA)
     setLoading(false)
     setRefreshing(false)
   }, [])

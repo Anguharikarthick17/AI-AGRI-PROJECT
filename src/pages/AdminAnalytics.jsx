@@ -58,27 +58,37 @@ export default function AdminAnalytics() {
   const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
     else setRefreshing(true)
+
+    let remoteApps = []
+    let remoteGriev = []
+    let localApps = JSON.parse(localStorage.getItem('mock_applications') || '[]')
+    let localGriev = JSON.parse(localStorage.getItem('mock_grievances') || '[]')
+    
     try {
       const [appsRes, grievRes] = await Promise.all([
         supabase.from('applications').select('status, scheme_type, created_at').order('created_at', { ascending: false }),
-        supabase.from('grievances').select('category, priority').order('created_at', { ascending: false }),
+        supabase.from('grievances').select('category, priority, created_at').order('created_at', { ascending: false }),
       ])
-      if (appsRes.error) throw appsRes.error
-      setApps(appsRes.data || [])
-      setGrievances(grievRes.data || [])
-    } catch {
-      const appsLocal = localStorage.getItem('mock_applications')
-      const grievLocal = localStorage.getItem('mock_grievances')
-      
-      const parsedApps = appsLocal ? JSON.parse(appsLocal) : DEMO_APPS
-      const parsedGriev = grievLocal ? JSON.parse(grievLocal) : DEMO_GRIEVANCES
-      
-      if (!appsLocal) localStorage.setItem('mock_applications', JSON.stringify(DEMO_APPS))
-      if (!grievLocal) localStorage.setItem('mock_grievances', JSON.stringify(DEMO_GRIEVANCES))
-      
-      setApps(parsedApps)
-      setGrievances(parsedGriev)
+      if (!appsRes.error && appsRes.data) remoteApps = appsRes.data
+      if (!grievRes.error && grievRes.data) remoteGriev = grievRes.data
+    } catch (err) {
+      console.warn('Supabase fetch failed, relying on local storage')
     }
+
+    // Merge Apps
+    const mergedApps = [...remoteApps]
+    localApps.forEach(local => {
+      if (!mergedApps.find(remote => remote.id === local.id)) mergedApps.push(local)
+    })
+    
+    // Merge Grievances
+    const mergedGriev = [...remoteGriev]
+    localGriev.forEach(local => {
+      if (!mergedGriev.find(remote => remote.id === local.id)) mergedGriev.push(local)
+    })
+
+    setApps(mergedApps.length > 0 ? mergedApps : DEMO_APPS)
+    setGrievances(mergedGriev.length > 0 ? mergedGriev : DEMO_GRIEVANCES)
     setLoading(false)
     setRefreshing(false)
   }, [])

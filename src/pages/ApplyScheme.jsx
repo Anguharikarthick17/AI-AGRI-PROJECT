@@ -68,15 +68,29 @@ export default function ApplyScheme() {
       if (isDuplicate) flags.push('Duplicate Aadhaar detected (+30 risk score)')
 
       const payload = {
-        name: form.name, aadhaar: form.aadhaar,
-        land_details: form.land_details, crop_type: form.crop_type,
-        scheme_type: formPayload.scheme_type, status: 'Pending',
-        ai_flag: finalFlag, risk_score: finalRisk,
+        user_id: 'anon',
+        name: form.name, 
+        aadhaar: form.aadhaar,
+        land_details: form.land_details, 
+        crop_type: form.crop_type,
+        scheme_type: formPayload.scheme_type, 
+        status: 'Pending',
+        ai_flag: finalFlag, 
+        risk_score: finalRisk,
+        created_at: new Date().toISOString()
       }
 
       try {
-        await supabase.from('applications').insert([payload])
-      } catch { /* offline mode fallback */ }
+        const { error } = await supabase.from('applications').insert([payload])
+        if (error) throw error
+      } catch (err) { 
+        console.warn('Supabase insert failed, saving to local storage')
+        const existing = JSON.parse(localStorage.getItem('mock_applications') || '[]')
+        localStorage.setItem('mock_applications', JSON.stringify([
+          { id: 'APP-' + Math.random().toString(36).substr(2, 9).toUpperCase(), ...payload }, 
+          ...existing
+        ]))
+      }
 
       setVerifyResult({ aiFlag: finalFlag, riskScore: finalRisk, flags, ocrText })
       setSubmitted(true)
