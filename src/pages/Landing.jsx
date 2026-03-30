@@ -4,6 +4,7 @@ import { Sprout, ShieldCheck, Shield, Zap, BarChart3, AlertTriangle, ChevronRigh
 import MarketTracker from '../components/MarketTracker'
 import WeatherWidget from '../components/WeatherWidget'
 import AgriLogo from '../components/AgriLogo'
+import LiveTime from '../components/LiveTime'
 
 const FEATURES = [
   { icon: ShieldCheck, title: 'AI Document Verification', desc: 'OCR-powered instant verification of farmer documents with mismatch detection and risk scoring.', color: 'var(--green-600)' },
@@ -47,7 +48,8 @@ export default function Landing() {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <AgriLogo size="md" light={true} onClick={() => navigate('/')} />
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <LiveTime light={true} />
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
         </div>
       </nav>
@@ -105,9 +107,20 @@ export default function Landing() {
             </span>
           </h1>
 
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 12,
+            marginTop: 12, marginBottom: 20,
+            color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontWeight: 600,
+            textTransform: 'uppercase', letterSpacing: '1px',
+            animation: 'fadeInUp 0.8s ease both', animationDelay: '.15s'
+          }}>
+            <Bot size={14} color="var(--green-400)" />
+            <span>Powered by AI: OCR • Smart Classification • Predictive Insights</span>
+          </div>
+
           <p style={{
-            fontSize: '1.1rem', color: 'rgba(255,255,255,.7)', marginTop: 20, marginBottom: 40,
-            lineHeight: 1.75, maxWidth: 640, margin: '20px auto 40px',
+            fontSize: '1.1rem', color: 'rgba(255,255,255,.7)', marginTop: 0, marginBottom: 40,
+            lineHeight: 1.75, maxWidth: 640, margin: '0 auto 40px',
             animation: 'fadeInUp .8s ease', animationFillMode: 'both', animationDelay: '.2s'
           }}>
             Automating government workflows for faster, transparent and efficient farmer services.
@@ -151,6 +164,23 @@ export default function Landing() {
           <span style={{ color: 'rgba(255,255,255,.5)', fontSize: '0.7rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Scroll</span>
         </div>
       </section>
+
+      {/* ── Impact Stats Strip ── */}
+      <div style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '20px 0', overflow: 'hidden' }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
+          {[
+            { v: '10,000+', l: 'Farmers Benefited' },
+            { v: '75%', l: 'Faster Approvals' },
+            { v: '95%', l: 'AI Accuracy' },
+            { v: '24/7', l: 'Expert Support' },
+          ].map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'white', fontFamily: 'Outfit, sans-serif' }}>{s.v}</div>
+              <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,.4)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── Stats Bar ── */}
       <section ref={el => addRef(el, 0)} className="reveal" style={{ background: 'linear-gradient(90deg, var(--green-900), var(--green-800))', padding: '32px 40px' }}>
@@ -290,6 +320,10 @@ export default function Landing() {
               Officer Login <ArrowRight size={20} />
             </button>
           </div>
+          <p style={{ marginTop: 24, fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
+            <UserCheck size={14} style={{ verticalAlign: 'middle', marginRight: 6, color: 'var(--green-400)' }} />
+            Trusted by farmers and agricultural officers across 14 states
+          </p>
         </div>
       </section>
 
@@ -309,6 +343,24 @@ export default function Landing() {
         @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-8px); } }
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ── Hover Enhancements ── */
+        .btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2); }
+        .btn-primary:hover { box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4); }
+        
+        .card, [style*="background: rgba(255,255,255,.03)"] { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover, [style*="background: rgba(255,255,255,.03)"]:hover { 
+          transform: translateY(-8px); 
+          background: rgba(255,255,255,.05) !important;
+          border-color: rgba(16, 185, 129, 0.3) !important;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* ── Scroll Reveals ── */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
         @media (max-width: 640px) {
           .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import AgriLogo from '../components/AgriLogo'
 import LocationPicker from '../components/LocationPicker'
 import VoiceRecorder from '../components/VoiceRecorder'
+import LiveTime from '../components/LiveTime'
 
 const INSURANCE_PLANS = [
   { id: '1', title: 'PMFBY (Pradhan Mantri Fasal Bima Yojana)', desc: 'Crop insurance that covers loss due to rain, flood, drought, and pests.', icon: <Shield size={32} color="#8b5cf6" /> },
@@ -109,7 +110,8 @@ export default function Insurance() {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <AgriLogo size="sm" light={true} onClick={() => navigate('/')} />
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <LiveTime light={true} />
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
         </div>
       </nav>

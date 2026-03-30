@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Bell, Menu, LogOut, X, Hand } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import LiveTime from './LiveTime'
 
 export default function Topnav({ onMenuToggle }) {
   const { user, logout, notifications, clearNotifications } = useAuth()
@@ -33,7 +34,9 @@ export default function Topnav({ onMenuToggle }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <LiveTime />
+        
         {/* Notification Bell */}
         <div style={{ position: 'relative' }} ref={panelRef}>
           <button

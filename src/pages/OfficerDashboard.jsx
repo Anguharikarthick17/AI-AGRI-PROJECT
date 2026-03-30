@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { exportToCSV } from '../lib/aiHelpers'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
-import { Search, Download, RefreshCw, CheckCircle, XCircle, Shield, AlertTriangle, Users, MapPin, Play, X } from 'lucide-react'
+import { Search, Download, RefreshCw, CheckCircle, XCircle, Shield, AlertTriangle, Users, MapPin, Play, X, FileText, Mic } from 'lucide-react'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -363,14 +363,57 @@ export default function OfficerDashboard() {
                 )}
               </div>
 
+              {/* Document Submitted */}
+              <div style={{ marginBottom: 32 }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--slate-400)', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FileText size={16} /> Document Submitted
+                </h4>
+                {selectedApp.document_url ? (
+                  <div style={{ background: 'var(--slate-50)', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--slate-200)' }}>
+                    {selectedApp.document_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) || selectedApp.document_url.startsWith('data:image') ? (
+                      <div style={{ textAlign: 'center', padding: 16 }}>
+                        <img
+                          src={selectedApp.document_url}
+                          alt="Submitted document"
+                          style={{ maxWidth: '100%', maxHeight: 400, borderRadius: 12, objectFit: 'contain', border: '1px solid var(--slate-200)' }}
+                        />
+                        {selectedApp.document_name && (
+                          <div style={{ marginTop: 10, fontSize: '0.82rem', color: 'var(--slate-500)' }}>{selectedApp.document_name}</div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <FileText size={36} color="var(--green-600)" />
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--slate-800)', marginBottom: 4 }}>{selectedApp.document_name || 'Uploaded Document'}</div>
+                          <a
+                            href={selectedApp.document_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: 'var(--green-600)', fontWeight: 600, fontSize: '0.85rem', textDecoration: 'none' }}
+                          >
+                            View Document ↗
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ padding: '40px', background: 'var(--slate-50)', borderRadius: 16, textAlign: 'center', color: 'var(--slate-400)', fontSize: '0.9rem' }}>
+                    No document uploaded.
+                  </div>
+                )}
+              </div>
+
               {/* Voice Note */}
               <div style={{ marginBottom: 32 }}>
                 <h4 style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--slate-400)', letterSpacing: '1px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Play size={16} /> Farmer Voice Note
+                  <Mic size={16} /> Farmer Voice Note
                 </h4>
                 {selectedApp.voice_note_url ? (
-                  <div style={{ background: 'var(--slate-900)', padding: 16, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <audio src={selectedApp.voice_note_url} controls style={{ flex: 1 }} />
+                  <div style={{ background: 'var(--slate-900)', padding: '20px 24px', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <Mic size={20} color="#10b981" style={{ flexShrink: 0 }} />
+                    <audio src={selectedApp.voice_note_url} controls style={{ flex: 1, height: 44 }} />
                   </div>
                 ) : (
                   <div style={{ padding: '40px', background: 'var(--slate-50)', borderRadius: 16, textAlign: 'center', color: 'var(--slate-400)', fontSize: '0.9rem' }}>

@@ -16,7 +16,6 @@ import Grievance from './pages/Grievance'
 import CropDoctor from './pages/CropDoctor'
 import SoilAdvisor from './pages/SoilAdvisor'
 import LanguageSelector from './components/LanguageSelector'
-import LiveTime from './components/LiveTime'
 import WebAssistant from './components/WebAssistant'
 
 // Role-based route guard
@@ -53,7 +52,6 @@ export default function App() {
   return (
     <>
       <LanguageSelector />
-      <LiveTime />
       <WebAssistant />
       <Toaster
         position="top-right"

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import AgriLogo from '../components/AgriLogo'
 import LocationPicker from '../components/LocationPicker'
 import VoiceRecorder from '../components/VoiceRecorder'
+import LiveTime from '../components/LiveTime'
 
 export default function Grievance() {
   const navigate = useNavigate()
@@ -144,7 +145,8 @@ export default function Grievance() {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <AgriLogo size="sm" light={true} onClick={() => navigate('/')} />
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <LiveTime light={true} />
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Sign In</button>
         </div>
       </nav>

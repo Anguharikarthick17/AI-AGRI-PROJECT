@@ -33,19 +33,29 @@ export default function MarketTracker() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <ShoppingBag size={20} color="var(--green-600)" />
-          <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Live Mandi Prices</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Live Mandi Prices</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: 12, border: '1px solid rgba(16,185,129,0.2)' }}>
+              <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green-500)' }} />
+              <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--green-600)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Live</span>
+            </div>
+          </div>
         </div>
-        <button 
-          onClick={refreshPrices} 
-          disabled={loading}
-          style={{ 
-            background: 'none', border: 'none', cursor: 'pointer', color: 'var(--slate-400)',
-            display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem'
-          }}
-        >
-          <RefreshCw size={14} className={loading ? 'spin' : ''} />
-          {loading ? 'Updating...' : 'Refresh'}
-        </button>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--slate-400)', fontWeight: 500, marginBottom: 2 }}>Last updated: Just now</div>
+          <button 
+            onClick={refreshPrices} 
+            disabled={loading}
+            style={{ 
+              background: 'none', border: 'none', cursor: 'pointer', color: 'var(--green-600)',
+              display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', fontWeight: 600,
+              padding: 0, marginLeft: 'auto'
+            }}
+          >
+            <RefreshCw size={14} className={loading ? 'spin' : ''} />
+            {loading ? 'Updating...' : 'Sync Data'}
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -87,7 +97,9 @@ export default function MarketTracker() {
 
       <style>{`
         .spin { animation: spin 1s linear infinite; }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
       `}</style>
     </div>
   );

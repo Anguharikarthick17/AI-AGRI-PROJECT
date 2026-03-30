@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { runOCR, verifyDocument, checkDuplicateAadhaar } from '../lib/aiHelpers'
 import toast from 'react-hot-toast'
-import { Upload, CheckCircle, XCircle, AlertTriangle, Send, FileText, ArrowLeft, Leaf, LayoutGrid } from 'lucide-react'
+import { Upload, CheckCircle, XCircle, AlertTriangle, Send, FileText, ArrowLeft, Leaf, LayoutGrid, Clock } from 'lucide-react'
 import AgriLogo from '../components/AgriLogo'
 import LocationPicker from '../components/LocationPicker'
 import VoiceRecorder from '../components/VoiceRecorder'
+import LiveTime from '../components/LiveTime'
+
 
 const SCHEMES = [
   { id: '1', name: 'PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)', desc: 'Financial benefit of ₹6,000 per year to eligible farmer families.', icon: '💸' },
@@ -70,22 +72,48 @@ export default function ApplyScheme() {
       const finalFlag = isDuplicate ? 'Suspicious' : aiFlag
       toast.dismiss('verify')
 
+      // Upload voice note to Supabase storage
       let voiceNoteUrl = null
       if (voiceBlob) {
         try {
-          const fileName = `apply-${Date.now()}-${Math.random().toString(36).substring(7)}.wav`
-          const { data, error: uploadError } = await supabase.storage
+          const voiceFileName = `voice-${Date.now()}-${Math.random().toString(36).substring(7)}.wav`
+          const { error: voiceUploadError } = await supabase.storage
             .from('voice-notes')
-            .upload(fileName, voiceBlob)
+            .upload(voiceFileName, voiceBlob)
           
-          if (!uploadError) {
+          if (!voiceUploadError) {
             const { data: { publicUrl } } = supabase.storage
               .from('voice-notes')
-              .getPublicUrl(fileName)
+              .getPublicUrl(voiceFileName)
             voiceNoteUrl = publicUrl
           }
         } catch (err) {
-          voiceNoteUrl = URL.createObjectURL(voiceBlob)
+          console.warn('Voice note upload failed:', err)
+        }
+      }
+
+      // Upload document to Supabase storage
+      let documentUrl = null
+      if (file) {
+        try {
+          const ext = file.name.split('.').pop()
+          const docFileName = `doc-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+          const { error: docUploadError } = await supabase.storage
+            .from('documents')
+            .upload(docFileName, file)
+          
+          if (!docUploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('documents')
+              .getPublicUrl(docFileName)
+            documentUrl = publicUrl
+          }
+        } catch (err) {
+          console.warn('Document upload failed:', err)
+          // Store as base64 fallback so officer can still see it
+          if (file.type.startsWith('image/')) {
+            documentUrl = filePreview // already base64
+          }
         }
       }
 
@@ -99,6 +127,8 @@ export default function ApplyScheme() {
         latitude: location?.lat || null,
         longitude: location?.lng || null,
         voice_note_url: voiceNoteUrl,
+        document_url: documentUrl,
+        document_name: file?.name || null,
         status: 'Pending',
         ai_flag: finalFlag, 
         risk_score: finalRisk,
@@ -156,7 +186,8 @@ export default function ApplyScheme() {
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <AgriLogo size="sm" light={true} onClick={() => navigate('/')} />
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <LiveTime light={true} />
           <button className="btn btn-secondary btn-sm" onClick={() => navigate('/login')}>Officer Login</button>
         </div>
       </nav>

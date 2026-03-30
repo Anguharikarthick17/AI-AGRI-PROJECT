@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 
-export default function LiveTime() {
+export default function LiveTime({ light = false }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -28,30 +28,25 @@ export default function LiveTime() {
 
   return (
     <div 
+      className="live-time-chip"
       style={{ 
-        position: 'fixed', 
-        bottom: 32, 
-        left: 32, 
-        zIndex: 9999,
-        display: 'flex', 
+        display: 'inline-flex', 
         alignItems: 'center', 
         gap: 8,
-        background: 'rgba(255, 255, 255, 0.95)',
-        color: 'var(--slate-800)',
-        border: '1px solid rgba(0,0,0,0.1)',
-        padding: '12px 16px',
+        background: light ? 'rgba(255, 255, 255, 0.1)' : 'var(--slate-50)',
+        color: light ? 'rgba(255, 255, 255, 0.9)' : 'var(--slate-700)',
+        border: `1px solid ${light ? 'rgba(255, 255, 255, 0.15)' : 'var(--slate-200)'}`,
+        padding: '6px 14px',
         borderRadius: 99,
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(10px)',
         fontWeight: 600,
-        fontSize: '0.9rem',
+        fontSize: '0.82rem',
+        backdropFilter: 'blur(10px)',
+        whiteSpace: 'nowrap',
         transition: 'all 0.2s',
       }}
-      onMouseEnter={(e) => Object.assign(e.currentTarget.style, { transform: 'translateY(-2px)' })}
-      onMouseLeave={(e) => Object.assign(e.currentTarget.style, { transform: 'translateY(0)' })}
     >
-      <Clock size={18} color="var(--green-600)" />
-      <span>{formattedDate} | {formattedTime} (IST)</span>
+      <Clock size={15} color="#10b981" />
+      <span>{formattedDate} | {formattedTime} IST</span>
     </div>
   );
 }
